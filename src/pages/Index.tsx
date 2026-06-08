@@ -24,133 +24,233 @@ const MOCK_BALANCE = 84_320.5;
 const MOCK_CARD = "**** **** **** 4821";
 const MOCK_OWNER = "ИВАНОВ АЛЕКСЕЙ";
 
-function ATMShell({ children }: { children: React.ReactNode }) {
+function Clock() {
+  const [time, setTime] = useState(new Date());
+  useEffect(() => {
+    const t = setInterval(() => setTime(new Date()), 1000);
+    return () => clearInterval(t);
+  }, []);
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#e8e8e4] p-4">
-      <div
-        className="relative w-full max-w-sm bg-[#1c1c1e] rounded-[2rem] shadow-2xl overflow-hidden"
-        style={{ minHeight: 680 }}
-      >
-        <div className="flex items-center justify-between px-6 pt-5 pb-3">
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-[#00a86b]" />
-            <span className="text-[11px] text-[#5a5a60] font-mono-atm tracking-wider uppercase">
-              В сети
-            </span>
+    <span className="font-mono-atm text-[#4a4a50] text-sm tracking-widest">
+      {time.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
+    </span>
+  );
+}
+
+/* ── Shell: fullscreen 16:9 monitor frame ── */
+function ATMShell({
+  left,
+  right,
+}: {
+  left: React.ReactNode;
+  right: React.ReactNode;
+}) {
+  return (
+    <div className="min-h-screen bg-[#2b2b2e] flex items-center justify-center p-6">
+      {/* Monitor bezel */}
+      <div className="w-full max-w-[1100px] bg-[#1a1a1c] rounded-[1.75rem] shadow-[0_40px_80px_rgba(0,0,0,0.6)] overflow-hidden border border-[#333336]">
+        {/* Status bar */}
+        <div className="flex items-center justify-between px-10 py-3 border-b border-[#2a2a2e] bg-[#111113]">
+          <div className="flex items-center gap-3">
+            <div className="w-2 h-2 rounded-full bg-[#00a86b] shadow-[0_0_6px_#00a86b]" />
+            <span className="font-mono-atm text-[#3a3a40] text-xs tracking-[0.25em] uppercase">В сети</span>
           </div>
-          <span className="text-[11px] text-[#5a5a60] font-mono-atm tracking-wider">
-            {new Date().toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" })}
+          <div className="flex items-center gap-6">
+            <span className="font-mono-atm text-[#3a3a40] text-xs tracking-widest">ООО «ФинТех Банк»</span>
+            <Clock />
+          </div>
+        </div>
+
+        {/* Two-column layout */}
+        <div className="flex" style={{ minHeight: 580 }}>
+          {/* LEFT panel — context / branding */}
+          <div className="w-[340px] flex-shrink-0 bg-[#111113] border-r border-[#222226] flex flex-col p-10">
+            {left}
+          </div>
+
+          {/* RIGHT panel — main action area */}
+          <div className="flex-1 bg-[#f5f5f2] flex flex-col">
+            {right}
+          </div>
+        </div>
+
+        {/* Bottom bar */}
+        <div className="flex items-center justify-between px-10 py-3 border-t border-[#2a2a2e] bg-[#111113]">
+          <span className="font-mono-atm text-[#2a2a30] text-[10px] tracking-[0.3em] uppercase">
+            ATM · v2.4.1
+          </span>
+          <span className="font-mono-atm text-[#2a2a30] text-[10px] tracking-[0.3em] uppercase">
+            Защищено · TLS 1.3
           </span>
         </div>
-        <div
-          className="mx-4 mb-4 rounded-[1.25rem] overflow-hidden bg-[var(--atm-bg)]"
-          style={{ minHeight: 600 }}
-        >
-          {children}
-        </div>
       </div>
     </div>
   );
 }
 
-function WelcomeScreen({ onNext }: { onNext: () => void }) {
+/* ── Left panel variants ── */
+function LeftBrand() {
   return (
-    <div className="flex flex-col h-full min-h-[600px] p-8 animate-fade-in">
-      <div className="flex-1 flex flex-col justify-center">
-        <p className="text-xs font-mono-atm text-[var(--atm-ink-faint)] tracking-[0.2em] uppercase mb-6 animate-slide-up">
-          Добро пожаловать
-        </p>
-        <h1
-          className="text-[2.6rem] font-semibold text-[var(--atm-ink)] leading-[1.1] mb-3 animate-slide-up stagger-1"
-          style={{ fontFamily: "IBM Plex Sans", letterSpacing: "-0.03em" }}
-        >
-          Банкомат
+    <div className="flex flex-col h-full justify-between animate-fade-in">
+      <div>
+        <div className="w-10 h-10 rounded-xl bg-[#1e1e22] border border-[#333336] flex items-center justify-center mb-8">
+          <Icon name="Landmark" size={20} className="text-[#5a5a66]" />
+        </div>
+        <p className="font-mono-atm text-[#3a3a44] text-xs tracking-[0.3em] uppercase mb-4">Добро пожаловать</p>
+        <h1 className="text-white text-5xl font-semibold leading-[1.05]" style={{ letterSpacing: "-0.03em" }}>
+          Банко<br />мат
         </h1>
-        <p className="text-[var(--atm-ink-muted)] text-sm leading-relaxed animate-slide-up stagger-2">
-          Быстро, безопасно, удобно
+        <p className="text-[#4a4a54] text-sm mt-5 leading-relaxed">
+          Быстро, безопасно,<br />удобно
         </p>
-        <div className="mt-10 animate-slide-up stagger-3">
-          <div className="h-px bg-[var(--atm-border)] mb-8" />
-          <p className="text-xs text-[var(--atm-ink-faint)] font-mono-atm mb-1">Обслуживает банк</p>
-          <p className="text-sm font-semibold text-[var(--atm-ink)]">ООО «ФинТех Банк»</p>
-        </div>
       </div>
-      <button
-        onClick={onNext}
-        className="w-full bg-[var(--atm-ink)] text-white py-4 rounded-xl text-sm font-semibold tracking-wide hover:bg-[#2a2a2a] active:scale-[0.98] transition-all animate-slide-up stagger-4"
-      >
-        Начать
-      </button>
+      <div>
+        <div className="h-px bg-[#222226] mb-5" />
+        <p className="font-mono-atm text-[#2e2e36] text-[10px] tracking-widest uppercase mb-1">Оператор</p>
+        <p className="text-[#5a5a66] text-sm">ООО «ФинТех Банк»</p>
+      </div>
     </div>
   );
 }
 
-function InsertCardScreen({ onNext }: { onNext: () => void }) {
-  const [inserted, setInserted] = useState(false);
+function LeftCard({ screen }: { screen: string }) {
+  const labels: Record<string, { title: string; hint: string }> = {
+    "insert-card": { title: "Шаг 1", hint: "Вставьте карту" },
+    pin: { title: "Шаг 2", hint: "Подтверждение" },
+    menu: { title: "Главное", hint: "меню" },
+    "topup-method": { title: "Пополнение", hint: "Выбор способа" },
+    "topup-amount": { title: "Пополнение", hint: "Введите сумму" },
+    "topup-processing": { title: "Пополнение", hint: "Обработка..." },
+    "topup-success": { title: "Пополнение", hint: "Выполнено" },
+    "withdraw-amount": { title: "Снятие", hint: "Введите сумму" },
+    "withdraw-processing": { title: "Снятие", hint: "Обработка..." },
+    "withdraw-success": { title: "Снятие", hint: "Выполнено" },
+    transfer: { title: "Перевод", hint: "Номер получателя" },
+    "transfer-amount": { title: "Перевод", hint: "Введите сумму" },
+    "transfer-processing": { title: "Перевод", hint: "Обработка..." },
+    "transfer-success": { title: "Перевод", hint: "Выполнено" },
+    balance: { title: "Баланс", hint: "Остаток по счёту" },
+    history: { title: "История", hint: "Операций" },
+  };
 
-  function handleInsert() {
-    setInserted(true);
-    setTimeout(onNext, 1200);
-  }
+  const info = labels[screen] || { title: "", hint: "" };
 
   return (
-    <div className="flex flex-col h-full min-h-[600px] p-8 animate-fade-in">
-      <div className="flex-1 flex flex-col justify-center items-center text-center">
-        <div
-          className={`w-52 h-32 rounded-2xl mb-8 flex flex-col justify-between p-5 transition-all duration-500 ${
-            inserted
-              ? "bg-[var(--atm-ink)] scale-105"
-              : "bg-[var(--atm-border)] border-2 border-dashed border-[var(--atm-ink-faint)]"
-          }`}
-        >
-          <div className="flex justify-between items-start">
-            <div
-              className={`w-8 h-6 rounded-md ${inserted ? "bg-[#f0c040]" : "bg-[var(--atm-ink-faint)]"}`}
-            />
-            {inserted && (
-              <Icon name="Wifi" size={16} className="text-white opacity-60" />
-            )}
-          </div>
-          <div>
-            <p
-              className={`font-mono-atm text-xs tracking-widest ${
-                inserted ? "text-white" : "text-[var(--atm-ink-faint)]"
-              }`}
-            >
-              {inserted ? MOCK_CARD : "•••• •••• •••• ••••"}
-            </p>
-            {inserted && (
-              <p className="font-mono-atm text-[10px] text-[#ffffff80] mt-1">{MOCK_OWNER}</p>
-            )}
-          </div>
+    <div className="flex flex-col h-full justify-between animate-fade-in">
+      <div>
+        <div className="w-10 h-10 rounded-xl bg-[#1e1e22] border border-[#333336] flex items-center justify-center mb-8">
+          <Icon name="Landmark" size={20} className="text-[#5a5a66]" />
         </div>
-        {inserted ? (
-          <div className="animate-scale-in">
-            <p className="text-sm font-semibold text-[var(--atm-ink)]">Карта принята</p>
-            <p className="text-xs text-[var(--atm-ink-muted)] mt-1">Переход к вводу ПИН...</p>
-          </div>
-        ) : (
-          <>
-            <h2 className="text-xl font-semibold text-[var(--atm-ink)] mb-2">Вставьте карту</h2>
-            <p className="text-sm text-[var(--atm-ink-muted)] leading-relaxed">
-              Или нажмите кнопку, чтобы<br />симулировать вставку карты
-            </p>
-          </>
-        )}
+        <p className="font-mono-atm text-[#3a3a44] text-xs tracking-[0.3em] uppercase mb-3">{info.title}</p>
+        <h2 className="text-white text-4xl font-semibold leading-[1.1]" style={{ letterSpacing: "-0.02em" }}>
+          {info.hint}
+        </h2>
       </div>
-      {!inserted && (
-        <button
-          onClick={handleInsert}
-          className="w-full bg-[var(--atm-ink)] text-white py-4 rounded-xl text-sm font-semibold hover:bg-[#2a2a2a] active:scale-[0.98] transition-all"
-        >
-          Вставить карту
-        </button>
+
+      {screen !== "insert-card" && screen !== "pin" && screen !== "welcome" && (
+        <div className="bg-[#1a1a1e] border border-[#2a2a30] rounded-2xl p-5">
+          <p className="font-mono-atm text-[#2e2e38] text-[10px] tracking-widest uppercase mb-2">Карта</p>
+          <p className="font-mono-atm text-[#5a5a66] text-sm tracking-widest">{MOCK_CARD}</p>
+          <div className="h-px bg-[#222226] my-3" />
+          <p className="font-mono-atm text-[#2e2e38] text-[10px] tracking-widest uppercase mb-1">Владелец</p>
+          <p className="font-mono-atm text-[#5a5a66] text-sm">{MOCK_OWNER}</p>
+        </div>
+      )}
+
+      {(screen === "insert-card" || screen === "pin") && (
+        <div>
+          <div className="h-px bg-[#222226] mb-5" />
+          <p className="font-mono-atm text-[#2e2e36] text-[10px] tracking-widest uppercase mb-1">Безопасность</p>
+          <p className="text-[#3a3a44] text-xs leading-relaxed">Никогда не сообщайте ПИН-код третьим лицам</p>
+        </div>
       )}
     </div>
   );
 }
 
-function PinScreen({ onBack, onNext }: { onBack: () => void; onNext: () => void }) {
+/* ── Screens (right panel) ── */
+function WelcomeRight({ onNext }: { onNext: () => void }) {
+  return (
+    <div className="flex flex-col h-full p-12 animate-fade-in">
+      <div className="flex-1 flex flex-col justify-center max-w-lg">
+        <p className="font-mono-atm text-[#a0a09a] text-xs tracking-[0.3em] uppercase mb-6 animate-slide-up">
+          Для начала работы
+        </p>
+        <h2 className="text-[var(--atm-ink)] text-4xl font-semibold mb-4 leading-tight animate-slide-up stagger-1" style={{ letterSpacing: "-0.02em" }}>
+          Нажмите кнопку<br />для входа
+        </h2>
+        <p className="text-[var(--atm-ink-muted)] text-base leading-relaxed animate-slide-up stagger-2">
+          Или вставьте карту в картоприёмник.
+          Поддерживаются карты Visa, Mastercard, Мир.
+        </p>
+      </div>
+      <div className="flex gap-4 animate-slide-up stagger-3">
+        <button
+          onClick={onNext}
+          className="flex items-center gap-3 bg-[var(--atm-ink)] text-white px-10 py-5 rounded-2xl text-base font-semibold hover:bg-[#2a2a2a] active:scale-[0.98] transition-all"
+        >
+          <Icon name="CreditCard" size={20} />
+          Начать работу
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function InsertCardRight({ onNext }: { onNext: () => void }) {
+  const [inserted, setInserted] = useState(false);
+  function handleInsert() {
+    setInserted(true);
+    setTimeout(onNext, 1200);
+  }
+  return (
+    <div className="flex flex-col h-full p-12 animate-fade-in">
+      <div className="flex-1 flex flex-col justify-center items-start">
+        {/* Large card illustration */}
+        <div
+          className={`w-80 h-48 rounded-3xl mb-10 flex flex-col justify-between p-8 transition-all duration-500 ${
+            inserted ? "bg-[var(--atm-ink)] scale-105" : "bg-[#e8e8e4] border-2 border-dashed border-[#ccc]"
+          }`}
+        >
+          <div className="flex justify-between items-start">
+            <div className={`w-12 h-8 rounded-lg ${inserted ? "bg-[#f0c040]" : "bg-[#c0c0bc]"}`} />
+            {inserted && <Icon name="Wifi" size={20} className="text-white opacity-50" />}
+          </div>
+          <div>
+            <p className={`font-mono-atm text-base tracking-[0.2em] mb-1 ${inserted ? "text-white" : "text-[#aaa]"}`}>
+              {inserted ? MOCK_CARD : "•••• •••• •••• ••••"}
+            </p>
+            {inserted && (
+              <p className="font-mono-atm text-xs text-white/60">{MOCK_OWNER}</p>
+            )}
+          </div>
+        </div>
+        {inserted ? (
+          <div className="animate-scale-in">
+            <p className="text-2xl font-semibold text-[var(--atm-ink)] mb-1">Карта принята</p>
+            <p className="text-[var(--atm-ink-muted)]">Переходим к вводу ПИН-кода...</p>
+          </div>
+        ) : (
+          <>
+            <h2 className="text-3xl font-semibold text-[var(--atm-ink)] mb-3">Вставьте карту</h2>
+            <p className="text-[var(--atm-ink-muted)] text-base mb-8">
+              Поднесите карту к картоприёмнику или нажмите кнопку ниже для демонстрации
+            </p>
+            <button
+              onClick={handleInsert}
+              className="flex items-center gap-3 bg-[var(--atm-ink)] text-white px-10 py-5 rounded-2xl text-base font-semibold hover:bg-[#2a2a2a] active:scale-[0.98] transition-all"
+            >
+              <Icon name="CreditCard" size={20} />
+              Вставить карту
+            </button>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function PinRight({ onBack, onNext }: { onBack: () => void; onNext: () => void }) {
   const [pin, setPin] = useState("");
   const [error, setError] = useState(false);
 
@@ -160,74 +260,58 @@ function PinScreen({ onBack, onNext }: { onBack: () => void; onNext: () => void 
       setPin(next);
       if (next.length === 4) {
         setTimeout(() => {
-          if (next === "1234") {
-            onNext();
-          } else {
-            setError(true);
-            setTimeout(() => { setError(false); setPin(""); }, 1000);
-          }
+          if (next === "1234") { onNext(); }
+          else { setError(true); setTimeout(() => { setError(false); setPin(""); }, 1000); }
         }, 300);
       }
     }
   }
 
-  function handleDel() {
-    setPin(pin.slice(0, -1));
-    setError(false);
-  }
+  function handleDel() { setPin(pin.slice(0, -1)); setError(false); }
 
   const keys = ["1","2","3","4","5","6","7","8","9","","0","⌫"];
 
   return (
-    <div className="flex flex-col h-full min-h-[600px] p-8 animate-fade-in">
-      <button
-        onClick={onBack}
-        className="self-start text-xs text-[var(--atm-ink-muted)] font-mono-atm mb-6 flex items-center gap-1 hover:text-[var(--atm-ink)] transition-colors"
-      >
-        <Icon name="ChevronLeft" size={14} /> Назад
-      </button>
-      <div className="flex-1 flex flex-col justify-center">
-        <p className="text-xs font-mono-atm text-[var(--atm-ink-faint)] tracking-[0.2em] uppercase mb-2">
-          Карта принята
-        </p>
-        <h2 className="text-2xl font-semibold text-[var(--atm-ink)] mb-8">Введите ПИН-код</h2>
-        <div className="flex gap-4 mb-2">
-          {[0, 1, 2, 3].map((i) => (
+    <div className="flex h-full p-12 gap-16 animate-fade-in">
+      {/* Left: info */}
+      <div className="flex flex-col justify-center flex-1">
+        <button
+          onClick={onBack}
+          className="self-start flex items-center gap-2 text-[var(--atm-ink-muted)] text-sm font-mono-atm hover:text-[var(--atm-ink)] transition-colors mb-10"
+        >
+          <Icon name="ChevronLeft" size={16} /> Назад
+        </button>
+        <h2 className="text-4xl font-semibold text-[var(--atm-ink)] mb-6" style={{ letterSpacing: "-0.02em" }}>
+          Введите<br />ПИН-код
+        </h2>
+        <div className="flex gap-5 mb-3">
+          {[0,1,2,3].map((i) => (
             <div
               key={i}
-              className={`w-4 h-4 rounded-full transition-all duration-200 ${
-                error
-                  ? "bg-[var(--atm-danger)]"
-                  : i < pin.length
-                  ? "bg-[var(--atm-ink)] scale-110"
-                  : "bg-[var(--atm-border)] border border-[var(--atm-ink-faint)]"
+              className={`w-5 h-5 rounded-full transition-all duration-200 ${
+                error ? "bg-[var(--atm-danger)]"
+                : i < pin.length ? "bg-[var(--atm-ink)] scale-110"
+                : "border-2 border-[#ccc]"
               }`}
             />
           ))}
         </div>
-        {error && (
-          <p className="text-xs text-[var(--atm-danger)] mb-4 animate-fade-in">
-            Неверный ПИН. Попробуйте ещё раз
-          </p>
-        )}
-        <p className="text-[10px] text-[var(--atm-ink-faint)] font-mono-atm mt-1 mb-8">
-          Подсказка: 1234
-        </p>
-        <div className="grid grid-cols-3 gap-3">
+        {error && <p className="text-[var(--atm-danger)] text-sm mt-2 animate-fade-in">Неверный ПИН-код</p>}
+        <p className="font-mono-atm text-[#b0b0aa] text-xs mt-4">Подсказка: 1234</p>
+      </div>
+
+      {/* Right: keypad */}
+      <div className="flex items-center justify-center">
+        <div className="grid grid-cols-3 gap-3 w-64">
           {keys.map((k, idx) => (
             <button
               key={idx}
-              onClick={() => {
-                if (k === "⌫") handleDel();
-                else if (k !== "") handleKey(k);
-              }}
+              onClick={() => { if (k === "⌫") handleDel(); else if (k !== "") handleKey(k); }}
               disabled={k === ""}
-              className={`h-14 rounded-xl text-lg font-semibold transition-all active:scale-95 ${
-                k === ""
-                  ? "invisible"
-                  : k === "⌫"
-                  ? "bg-[var(--atm-border)] text-[var(--atm-ink-muted)] hover:bg-[#ddd] font-mono-atm"
-                  : "bg-[var(--atm-keypad)] text-[var(--atm-ink)] hover:bg-[#e4e4e0]"
+              className={`h-16 rounded-2xl text-xl font-semibold transition-all active:scale-95 ${
+                k === "" ? "invisible"
+                : k === "⌫" ? "bg-[#e8e8e4] text-[var(--atm-ink-muted)] hover:bg-[#ddd] font-mono-atm"
+                : "bg-[var(--atm-keypad)] text-[var(--atm-ink)] hover:bg-[#e2e2de]"
               }`}
             >
               {k}
@@ -239,67 +323,57 @@ function PinScreen({ onBack, onNext }: { onBack: () => void; onNext: () => void 
   );
 }
 
-function MenuScreen({ onAction, onBack }: { onAction: (s: Screen) => void; onBack: () => void }) {
+function MenuRight({ onAction, onBack }: { onAction: (s: Screen) => void; onBack: () => void }) {
   const items = [
     { label: "Пополнить счёт", sub: "Через карту или кошелёк", icon: "ArrowDownCircle", screen: "topup-method" as Screen, accent: true },
     { label: "Снять наличные", sub: "С карты или счёта", icon: "Banknote", screen: "withdraw-amount" as Screen, accent: false },
     { label: "Перевод", sub: "На карту или по номеру", icon: "ArrowRightLeft", screen: "transfer" as Screen, accent: false },
-    { label: "Баланс", sub: "Проверить остаток", icon: "Eye", screen: "balance" as Screen, accent: false },
+    { label: "Баланс", sub: "Проверить остаток на счёте", icon: "Eye", screen: "balance" as Screen, accent: false },
     { label: "История", sub: "Последние операции", icon: "ClipboardList", screen: "history" as Screen, accent: false },
   ];
 
   return (
-    <div className="flex flex-col h-full min-h-[600px] p-6 animate-fade-in">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <p className="text-[10px] font-mono-atm text-[var(--atm-ink-faint)] tracking-widest uppercase">
-            {MOCK_CARD}
-          </p>
-          <h2 className="text-xl font-semibold text-[var(--atm-ink)] mt-0.5">Главное меню</h2>
-        </div>
+    <div className="flex flex-col h-full p-10 animate-fade-in">
+      <div className="flex justify-between items-center mb-8">
+        <h2 className="text-2xl font-semibold text-[var(--atm-ink)]">Выберите операцию</h2>
         <button
           onClick={onBack}
-          className="text-xs text-[var(--atm-ink-muted)] font-mono-atm flex items-center gap-1 hover:text-[var(--atm-danger)] transition-colors"
+          className="flex items-center gap-2 text-sm text-[var(--atm-ink-muted)] font-mono-atm hover:text-[var(--atm-danger)] transition-colors"
         >
-          Выход
+          <Icon name="LogOut" size={14} /> Завершить сеанс
         </button>
       </div>
-      <div className="flex flex-col gap-2 flex-1">
-        {items.map((item, i) => (
+
+      <div className="grid grid-cols-2 gap-3 flex-1 content-start">
+        {/* First item — full width, accent */}
+        <button
+          onClick={() => onAction("topup-method")}
+          className="col-span-2 flex items-center gap-5 p-6 rounded-2xl bg-[var(--atm-ink)] text-white hover:bg-[#2a2a2a] active:scale-[0.98] transition-all animate-slide-up"
+        >
+          <div className="w-14 h-14 rounded-xl bg-white/10 flex items-center justify-center flex-shrink-0">
+            <Icon name="ArrowDownCircle" size={26} className="text-white" />
+          </div>
+          <div>
+            <p className="text-lg font-semibold">Пополнить счёт</p>
+            <p className="text-white/50 text-sm mt-0.5">Через карту или кошелёк</p>
+          </div>
+          <Icon name="ChevronRight" size={20} className="ml-auto text-white/30" />
+        </button>
+
+        {items.slice(1).map((item, i) => (
           <button
             key={item.screen}
             onClick={() => onAction(item.screen)}
-            className={`flex items-center gap-4 p-4 rounded-xl text-left transition-all active:scale-[0.98] animate-slide-up ${
-              item.accent
-                ? "bg-[var(--atm-ink)] text-white hover:bg-[#2a2a2a]"
-                : "bg-white border border-[var(--atm-border)] text-[var(--atm-ink)] hover:border-[var(--atm-ink-muted)]"
-            }`}
-            style={{ animationDelay: `${i * 0.06}s` }}
+            className="flex items-center gap-4 p-5 rounded-2xl bg-white border border-[var(--atm-border)] hover:border-[#aaa] hover:shadow-sm active:scale-[0.98] transition-all animate-slide-up"
+            style={{ animationDelay: `${(i + 1) * 0.07}s` }}
           >
-            <div
-              className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                item.accent ? "bg-white/10" : "bg-[var(--atm-keypad)]"
-              }`}
-            >
-              <Icon
-                name={item.icon}
-                size={18}
-                className={item.accent ? "text-white" : "text-[var(--atm-ink)]"}
-              />
+            <div className="w-11 h-11 rounded-xl bg-[var(--atm-keypad)] flex items-center justify-center flex-shrink-0">
+              <Icon name={item.icon} size={20} className="text-[var(--atm-ink)]" />
             </div>
             <div>
-              <p className={`text-sm font-semibold ${item.accent ? "text-white" : "text-[var(--atm-ink)]"}`}>
-                {item.label}
-              </p>
-              <p className={`text-[11px] mt-0.5 ${item.accent ? "text-white/60" : "text-[var(--atm-ink-faint)]"}`}>
-                {item.sub}
-              </p>
+              <p className="text-sm font-semibold text-[var(--atm-ink)]">{item.label}</p>
+              <p className="text-[11px] text-[var(--atm-ink-faint)] mt-0.5">{item.sub}</p>
             </div>
-            <Icon
-              name="ChevronRight"
-              size={16}
-              className={`ml-auto ${item.accent ? "text-white/40" : "text-[var(--atm-ink-faint)]"}`}
-            />
           </button>
         ))}
       </div>
@@ -307,41 +381,39 @@ function MenuScreen({ onAction, onBack }: { onAction: (s: Screen) => void; onBac
   );
 }
 
-function TopupMethodScreen({ onSelect, onBack }: { onSelect: (m: string) => void; onBack: () => void }) {
+function TopupMethodRight({ onSelect, onBack }: { onSelect: (m: string) => void; onBack: () => void }) {
   const methods = [
     { id: "card", label: "Банковская карта", sub: "Visa, Mastercard, Мир", icon: "CreditCard" },
     { id: "wallet", label: "Мобильный кошелёк", sub: "СБП, ЮMoney, QIWI", icon: "Smartphone" },
     { id: "cash", label: "Наличными", sub: "Вставьте купюры в приёмник", icon: "Banknote" },
   ];
-
   return (
-    <div className="flex flex-col h-full min-h-[600px] p-8 animate-fade-in">
+    <div className="flex flex-col h-full p-12 animate-fade-in">
       <button
         onClick={onBack}
-        className="self-start text-xs text-[var(--atm-ink-muted)] font-mono-atm mb-6 flex items-center gap-1 hover:text-[var(--atm-ink)] transition-colors"
+        className="self-start flex items-center gap-2 text-[var(--atm-ink-muted)] text-sm font-mono-atm hover:text-[var(--atm-ink)] transition-colors mb-8"
       >
-        <Icon name="ChevronLeft" size={14} /> Назад
+        <Icon name="ChevronLeft" size={16} /> Назад
       </button>
-      <p className="text-xs font-mono-atm text-[var(--atm-ink-faint)] tracking-[0.2em] uppercase mb-2">
-        Пополнение счёта
-      </p>
-      <h2 className="text-2xl font-semibold text-[var(--atm-ink)] mb-8">Выберите способ</h2>
-      <div className="flex flex-col gap-3 flex-1">
+      <h2 className="text-3xl font-semibold text-[var(--atm-ink)] mb-8" style={{ letterSpacing: "-0.02em" }}>
+        Выберите способ<br />пополнения
+      </h2>
+      <div className="flex flex-col gap-4">
         {methods.map((m, i) => (
           <button
             key={m.id}
             onClick={() => onSelect(m.id)}
-            className="flex items-center gap-4 p-5 bg-white border border-[var(--atm-border)] rounded-xl text-left hover:border-[var(--atm-ink)] hover:shadow-sm transition-all active:scale-[0.98] animate-slide-up"
-            style={{ animationDelay: `${i * 0.08}s` }}
+            className="flex items-center gap-5 p-6 bg-white border border-[var(--atm-border)] rounded-2xl hover:border-[var(--atm-ink)] hover:shadow-md active:scale-[0.98] transition-all animate-slide-up"
+            style={{ animationDelay: `${i * 0.09}s` }}
           >
-            <div className="w-11 h-11 rounded-xl bg-[var(--atm-keypad)] flex items-center justify-center flex-shrink-0">
-              <Icon name={m.icon} size={20} className="text-[var(--atm-ink)]" />
+            <div className="w-14 h-14 rounded-2xl bg-[var(--atm-keypad)] flex items-center justify-center flex-shrink-0">
+              <Icon name={m.icon} size={24} className="text-[var(--atm-ink)]" />
             </div>
             <div>
-              <p className="text-sm font-semibold text-[var(--atm-ink)]">{m.label}</p>
-              <p className="text-xs text-[var(--atm-ink-faint)] mt-0.5">{m.sub}</p>
+              <p className="text-base font-semibold text-[var(--atm-ink)]">{m.label}</p>
+              <p className="text-sm text-[var(--atm-ink-faint)] mt-0.5">{m.sub}</p>
             </div>
-            <Icon name="ChevronRight" size={16} className="ml-auto text-[var(--atm-ink-faint)]" />
+            <Icon name="ChevronRight" size={18} className="ml-auto text-[var(--atm-ink-faint)]" />
           </button>
         ))}
       </div>
@@ -349,140 +421,155 @@ function TopupMethodScreen({ onSelect, onBack }: { onSelect: (m: string) => void
   );
 }
 
-function AmountScreen({
+function AmountRight({
   title,
-  subtitle,
+  confirmLabel,
   onConfirm,
   onBack,
-  confirmLabel = "Подтвердить",
 }: {
   title: string;
-  subtitle: string;
-  onConfirm: (amount: number) => void;
+  confirmLabel: string;
+  onConfirm: (a: number) => void;
   onBack: () => void;
-  confirmLabel?: string;
 }) {
   const [amount, setAmount] = useState("");
-  const presets = ["500", "1000", "3000", "5000"];
+  const presets = ["500", "1 000", "3 000", "5 000", "10 000", "15 000"];
 
   function handleKey(val: string) {
-    if (val === "⌫") {
-      setAmount((a) => a.slice(0, -1));
-    } else if (val === "." && amount.includes(".")) {
-      return;
-    } else if (amount.length < 7) {
-      setAmount((a) => a + val);
-    }
+    if (val === "⌫") { setAmount((a) => a.slice(0, -1)); return; }
+    if (val === "." && amount.includes(".")) return;
+    if (amount.replace(".", "").length < 7) setAmount((a) => a + val);
   }
 
   const parsed = parseFloat(amount) || 0;
   const keys = ["1","2","3","4","5","6","7","8","9",".","0","⌫"];
 
   return (
-    <div className="flex flex-col h-full min-h-[600px] p-8 animate-fade-in">
-      <button
-        onClick={onBack}
-        className="self-start text-xs text-[var(--atm-ink-muted)] font-mono-atm mb-6 flex items-center gap-1 hover:text-[var(--atm-ink)] transition-colors"
-      >
-        <Icon name="ChevronLeft" size={14} /> Назад
-      </button>
-      <p className="text-xs font-mono-atm text-[var(--atm-ink-faint)] tracking-[0.2em] uppercase mb-1">
-        {subtitle}
-      </p>
-      <h2 className="text-2xl font-semibold text-[var(--atm-ink)] mb-6">{title}</h2>
-      <div className="bg-[var(--atm-keypad)] rounded-xl px-5 py-4 mb-4">
-        <p className="text-[10px] font-mono-atm text-[var(--atm-ink-faint)] mb-1 tracking-widest uppercase">Сумма (₽)</p>
-        <p className="font-mono-atm text-3xl font-semibold text-[var(--atm-ink)] tracking-tight">
-          {amount ? `${Number(amount).toLocaleString("ru-RU")}` : "0"}
-          <span className="text-[var(--atm-ink-faint)]"> ₽</span>
-        </p>
-      </div>
-      <div className="grid grid-cols-4 gap-2 mb-5">
-        {presets.map((p) => (
+    <div className="flex h-full p-12 gap-12 animate-fade-in">
+      {/* Left col */}
+      <div className="flex flex-col flex-1 justify-between">
+        <div>
           <button
-            key={p}
-            onClick={() => setAmount(p)}
-            className={`py-2 rounded-lg text-xs font-semibold font-mono-atm transition-all ${
-              amount === p
-                ? "bg-[var(--atm-ink)] text-white"
-                : "bg-white border border-[var(--atm-border)] text-[var(--atm-ink-muted)] hover:border-[var(--atm-ink)]"
-            }`}
+            onClick={onBack}
+            className="flex items-center gap-2 text-[var(--atm-ink-muted)] text-sm font-mono-atm hover:text-[var(--atm-ink)] transition-colors mb-8"
           >
-            {Number(p).toLocaleString("ru-RU")}
+            <Icon name="ChevronLeft" size={16} /> Назад
           </button>
-        ))}
+          <h2 className="text-3xl font-semibold text-[var(--atm-ink)] mb-8" style={{ letterSpacing: "-0.02em" }}>
+            {title}
+          </h2>
+          {/* Amount display */}
+          <div className="bg-[var(--atm-keypad)] rounded-2xl px-7 py-6 mb-6">
+            <p className="font-mono-atm text-[#a0a09a] text-xs tracking-widest uppercase mb-2">Сумма</p>
+            <p className="font-mono-atm text-5xl font-semibold text-[var(--atm-ink)] tracking-tight">
+              {amount ? Number(amount).toLocaleString("ru-RU") : "0"}
+              <span className="text-[#c0c0bc] text-3xl ml-2">₽</span>
+            </p>
+          </div>
+          {/* Presets */}
+          <div className="grid grid-cols-3 gap-2">
+            {presets.map((p) => {
+              const raw = p.replace(/\s/g, "");
+              return (
+                <button
+                  key={p}
+                  onClick={() => setAmount(raw)}
+                  className={`py-3 rounded-xl text-sm font-semibold font-mono-atm transition-all ${
+                    amount === raw
+                      ? "bg-[var(--atm-ink)] text-white"
+                      : "bg-white border border-[var(--atm-border)] text-[var(--atm-ink-muted)] hover:border-[var(--atm-ink)]"
+                  }`}
+                >
+                  {p}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+        <button
+          disabled={parsed <= 0}
+          onClick={() => onConfirm(parsed)}
+          className="w-full bg-[var(--atm-ink)] text-white py-5 rounded-2xl text-base font-semibold hover:bg-[#2a2a2a] active:scale-[0.98] transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+        >
+          {confirmLabel}
+        </button>
       </div>
-      <div className="grid grid-cols-3 gap-2 mb-5">
-        {keys.map((k, idx) => (
-          <button
-            key={idx}
-            onClick={() => handleKey(k)}
-            className="h-12 rounded-xl text-base font-semibold bg-[var(--atm-keypad)] text-[var(--atm-ink)] hover:bg-[#e4e4e0] active:scale-95 transition-all font-mono-atm"
-          >
-            {k}
-          </button>
-        ))}
+
+      {/* Right col: keypad */}
+      <div className="flex items-center justify-center">
+        <div className="grid grid-cols-3 gap-3 w-64">
+          {keys.map((k, idx) => (
+            <button
+              key={idx}
+              onClick={() => handleKey(k)}
+              className="h-16 rounded-2xl text-xl font-semibold bg-[var(--atm-keypad)] text-[var(--atm-ink)] hover:bg-[#e2e2de] active:scale-95 transition-all font-mono-atm"
+            >
+              {k}
+            </button>
+          ))}
+        </div>
       </div>
-      <button
-        disabled={parsed <= 0}
-        onClick={() => onConfirm(parsed)}
-        className="w-full bg-[var(--atm-ink)] text-white py-4 rounded-xl text-sm font-semibold hover:bg-[#2a2a2a] active:scale-[0.98] transition-all disabled:opacity-30 disabled:cursor-not-allowed"
-      >
-        {confirmLabel}
-      </button>
     </div>
   );
 }
 
-function ProcessingScreen({ label = "Обрабатываем операцию..." }: { label?: string }) {
+function ProcessingRight({ label }: { label: string }) {
   return (
-    <div className="flex flex-col h-full min-h-[600px] p-8 items-center justify-center animate-fade-in">
-      <div className="flex gap-2 mb-6">
-        {[0, 1, 2].map((i) => (
+    <div className="flex flex-col h-full items-center justify-center animate-fade-in gap-6">
+      <div className="flex gap-3">
+        {[0,1,2].map((i) => (
           <div
             key={i}
-            className="w-3 h-3 rounded-full bg-[var(--atm-ink)] animate-pulse-dot"
+            className="w-4 h-4 rounded-full bg-[var(--atm-ink)] animate-pulse-dot"
             style={{ animationDelay: `${i * 0.2}s` }}
           />
         ))}
       </div>
-      <p className="text-sm text-[var(--atm-ink-muted)] font-mono-atm tracking-wide">{label}</p>
+      <p className="font-mono-atm text-[var(--atm-ink-muted)] text-base tracking-widest">{label}</p>
     </div>
   );
 }
 
-function SuccessScreen({ amount, label, onDone }: { amount: number; label: string; onDone: () => void }) {
+function SuccessRight({ amount, label, onDone }: { amount: number; label: string; onDone: () => void }) {
   return (
-    <div className="flex flex-col h-full min-h-[600px] p-8 animate-fade-in">
-      <div className="flex-1 flex flex-col justify-center items-center text-center">
-        <div className="w-16 h-16 rounded-full bg-[var(--atm-success-light)] flex items-center justify-center mb-6 animate-scale-in">
-          <Icon name="Check" size={28} className="text-[var(--atm-success)]" />
+    <div className="flex flex-col h-full p-12 animate-fade-in">
+      <div className="flex-1 flex flex-col justify-center">
+        <div className="flex items-center gap-4 mb-8">
+          <div className="w-16 h-16 rounded-full bg-[var(--atm-success-light)] flex items-center justify-center animate-scale-in">
+            <Icon name="Check" size={30} className="text-[var(--atm-success)]" />
+          </div>
+          <div>
+            <p className="font-mono-atm text-[var(--atm-success)] text-xs tracking-[0.3em] uppercase animate-slide-up">Успешно</p>
+            <h2 className="text-3xl font-semibold text-[var(--atm-ink)] animate-slide-up stagger-1" style={{ letterSpacing: "-0.02em" }}>
+              {label}
+            </h2>
+          </div>
         </div>
-        <p className="text-xs font-mono-atm text-[var(--atm-success)] tracking-[0.2em] uppercase mb-2 animate-slide-up">
-          Успешно
-        </p>
-        <h2 className="text-2xl font-semibold text-[var(--atm-ink)] mb-2 animate-slide-up stagger-1">{label}</h2>
-        <p className="font-mono-atm text-3xl font-semibold text-[var(--atm-ink)] mb-6 animate-slide-up stagger-2">
-          {amount.toLocaleString("ru-RU")} ₽
-        </p>
-        <div className="w-full bg-[var(--atm-keypad)] rounded-xl p-4 text-left animate-slide-up stagger-3">
-          <div className="flex justify-between text-xs mb-2">
-            <span className="text-[var(--atm-ink-faint)] font-mono-atm">Карта</span>
-            <span className="text-[var(--atm-ink)] font-mono-atm">{MOCK_CARD}</span>
-          </div>
-          <div className="flex justify-between text-xs mb-2">
-            <span className="text-[var(--atm-ink-faint)] font-mono-atm">Дата</span>
-            <span className="text-[var(--atm-ink)] font-mono-atm">{new Date().toLocaleDateString("ru-RU")}</span>
-          </div>
-          <div className="flex justify-between text-xs">
-            <span className="text-[var(--atm-ink-faint)] font-mono-atm">Статус</span>
-            <span className="text-[var(--atm-success)] font-semibold font-mono-atm">Выполнено</span>
+
+        <div className="bg-[var(--atm-keypad)] rounded-2xl p-8 mb-8 animate-slide-up stagger-2">
+          <p className="font-mono-atm text-[#a0a09a] text-xs tracking-widest uppercase mb-2">Сумма операции</p>
+          <p className="font-mono-atm text-5xl font-semibold text-[var(--atm-ink)] mb-6">
+            {amount.toLocaleString("ru-RU")} <span className="text-[#c0c0bc] text-3xl">₽</span>
+          </p>
+          <div className="grid grid-cols-3 gap-4 text-sm">
+            <div>
+              <p className="font-mono-atm text-[#a0a09a] text-xs uppercase tracking-wider mb-1">Карта</p>
+              <p className="font-mono-atm text-[var(--atm-ink-muted)] text-xs">{MOCK_CARD}</p>
+            </div>
+            <div>
+              <p className="font-mono-atm text-[#a0a09a] text-xs uppercase tracking-wider mb-1">Дата</p>
+              <p className="font-mono-atm text-[var(--atm-ink-muted)] text-xs">{new Date().toLocaleDateString("ru-RU")}</p>
+            </div>
+            <div>
+              <p className="font-mono-atm text-[#a0a09a] text-xs uppercase tracking-wider mb-1">Статус</p>
+              <p className="font-mono-atm text-[var(--atm-success)] text-xs font-semibold">Выполнено</p>
+            </div>
           </div>
         </div>
       </div>
       <button
         onClick={onDone}
-        className="w-full bg-[var(--atm-ink)] text-white py-4 rounded-xl text-sm font-semibold hover:bg-[#2a2a2a] active:scale-[0.98] transition-all"
+        className="w-full bg-[var(--atm-ink)] text-white py-5 rounded-2xl text-base font-semibold hover:bg-[#2a2a2a] active:scale-[0.98] transition-all animate-slide-up stagger-3"
       >
         В главное меню
       </button>
@@ -490,46 +577,42 @@ function SuccessScreen({ amount, label, onDone }: { amount: number; label: strin
   );
 }
 
-function BalanceScreen({ onBack }: { onBack: () => void }) {
+function BalanceRight({ onBack }: { onBack: () => void }) {
   return (
-    <div className="flex flex-col h-full min-h-[600px] p-8 animate-fade-in">
+    <div className="flex flex-col h-full p-12 animate-fade-in">
       <button
         onClick={onBack}
-        className="self-start text-xs text-[var(--atm-ink-muted)] font-mono-atm mb-6 flex items-center gap-1 hover:text-[var(--atm-ink)] transition-colors"
+        className="self-start flex items-center gap-2 text-[var(--atm-ink-muted)] text-sm font-mono-atm hover:text-[var(--atm-ink)] transition-colors mb-8"
       >
-        <Icon name="ChevronLeft" size={14} /> Назад
+        <Icon name="ChevronLeft" size={16} /> Назад
       </button>
-      <p className="text-xs font-mono-atm text-[var(--atm-ink-faint)] tracking-[0.2em] uppercase mb-2">
-        Остаток по счёту
-      </p>
-      <h2 className="text-2xl font-semibold text-[var(--atm-ink)] mb-8">Баланс</h2>
       <div className="flex-1 flex flex-col justify-center">
-        <div className="bg-[var(--atm-ink)] rounded-2xl p-7 mb-4 animate-scale-in">
-          <p className="text-xs font-mono-atm text-white/50 tracking-widest uppercase mb-1">Доступно</p>
-          <p className="font-mono-atm text-4xl font-semibold text-white tracking-tight">
+        <div className="bg-[var(--atm-ink)] rounded-3xl p-10 mb-6 animate-scale-in">
+          <p className="font-mono-atm text-white/40 text-xs tracking-[0.3em] uppercase mb-3">Доступный остаток</p>
+          <p className="font-mono-atm text-6xl font-semibold text-white tracking-tight mb-1">
             {MOCK_BALANCE.toLocaleString("ru-RU", { minimumFractionDigits: 2 })}
-            <span className="text-white/50 text-2xl"> ₽</span>
           </p>
-          <div className="h-px bg-white/10 my-4" />
+          <p className="font-mono-atm text-white/30 text-2xl">рублей</p>
+          <div className="h-px bg-white/10 my-6" />
           <div className="flex justify-between">
             <div>
-              <p className="text-[10px] text-white/40 font-mono-atm uppercase tracking-widest">Карта</p>
-              <p className="text-xs text-white/80 font-mono-atm mt-0.5">{MOCK_CARD}</p>
+              <p className="font-mono-atm text-white/30 text-[10px] uppercase tracking-widest mb-1">Номер карты</p>
+              <p className="font-mono-atm text-white/70 text-sm tracking-widest">{MOCK_CARD}</p>
             </div>
             <div className="text-right">
-              <p className="text-[10px] text-white/40 font-mono-atm uppercase tracking-widest">Владелец</p>
-              <p className="text-xs text-white/80 font-mono-atm mt-0.5">{MOCK_OWNER}</p>
+              <p className="font-mono-atm text-white/30 text-[10px] uppercase tracking-widest mb-1">Владелец</p>
+              <p className="font-mono-atm text-white/70 text-sm">{MOCK_OWNER}</p>
             </div>
           </div>
         </div>
-        <div className="bg-[var(--atm-keypad)] rounded-xl p-4 animate-slide-up stagger-1">
-          <div className="flex justify-between text-xs mb-3">
-            <span className="text-[var(--atm-ink-faint)] font-mono-atm">Кредитный лимит</span>
-            <span className="text-[var(--atm-ink)] font-mono-atm">100 000 ₽</span>
+        <div className="grid grid-cols-2 gap-4 animate-slide-up stagger-1">
+          <div className="bg-white border border-[var(--atm-border)] rounded-2xl p-5">
+            <p className="font-mono-atm text-[#a0a09a] text-xs uppercase tracking-widest mb-2">Кредитный лимит</p>
+            <p className="font-mono-atm text-xl font-semibold text-[var(--atm-ink)]">100 000 ₽</p>
           </div>
-          <div className="flex justify-between text-xs">
-            <span className="text-[var(--atm-ink-faint)] font-mono-atm">Последнее пополнение</span>
-            <span className="text-[var(--atm-ink)] font-mono-atm">07.06.2026</span>
+          <div className="bg-white border border-[var(--atm-border)] rounded-2xl p-5">
+            <p className="font-mono-atm text-[#a0a09a] text-xs uppercase tracking-widest mb-2">Посл. пополнение</p>
+            <p className="font-mono-atm text-xl font-semibold text-[var(--atm-ink)]">07.06.2026</p>
           </div>
         </div>
       </div>
@@ -537,42 +620,38 @@ function BalanceScreen({ onBack }: { onBack: () => void }) {
   );
 }
 
-function HistoryScreen({ onBack }: { onBack: () => void }) {
+function HistoryRight({ onBack }: { onBack: () => void }) {
   const ops = [
-    { icon: "ArrowDownCircle", label: "Пополнение", date: "08.06.2026", amount: "+5 000", color: "text-[#00a86b]" },
-    { icon: "ArrowUpCircle", label: "Снятие", date: "07.06.2026", amount: "−2 000", color: "text-[#e53935]" },
-    { icon: "ArrowRightLeft", label: "Перевод", date: "06.06.2026", amount: "−1 500", color: "text-[#e53935]" },
-    { icon: "ArrowDownCircle", label: "Пополнение", date: "05.06.2026", amount: "+10 000", color: "text-[#00a86b]" },
-    { icon: "ArrowUpCircle", label: "Снятие", date: "04.06.2026", amount: "−3 000", color: "text-[#e53935]" },
+    { icon: "ArrowDownCircle", label: "Пополнение счёта", date: "08.06.2026  14:32", amount: "+5 000", color: "text-[#00a86b]" },
+    { icon: "ArrowUpCircle", label: "Снятие наличных", date: "07.06.2026  09:15", amount: "−2 000", color: "text-[#e53935]" },
+    { icon: "ArrowRightLeft", label: "Перевод", date: "06.06.2026  17:44", amount: "−1 500", color: "text-[#e53935]" },
+    { icon: "ArrowDownCircle", label: "Пополнение счёта", date: "05.06.2026  11:20", amount: "+10 000", color: "text-[#00a86b]" },
+    { icon: "ArrowUpCircle", label: "Снятие наличных", date: "04.06.2026  08:05", amount: "−3 000", color: "text-[#e53935]" },
   ];
-
   return (
-    <div className="flex flex-col h-full min-h-[600px] p-8 animate-fade-in">
+    <div className="flex flex-col h-full p-12 animate-fade-in">
       <button
         onClick={onBack}
-        className="self-start text-xs text-[var(--atm-ink-muted)] font-mono-atm mb-6 flex items-center gap-1 hover:text-[var(--atm-ink)] transition-colors"
+        className="self-start flex items-center gap-2 text-[var(--atm-ink-muted)] text-sm font-mono-atm hover:text-[var(--atm-ink)] transition-colors mb-8"
       >
-        <Icon name="ChevronLeft" size={14} /> Назад
+        <Icon name="ChevronLeft" size={16} /> Назад
       </button>
-      <p className="text-xs font-mono-atm text-[var(--atm-ink-faint)] tracking-[0.2em] uppercase mb-2">
-        {MOCK_CARD}
-      </p>
-      <h2 className="text-2xl font-semibold text-[var(--atm-ink)] mb-6">История</h2>
-      <div className="flex flex-col gap-2 flex-1">
+      <h2 className="text-2xl font-semibold text-[var(--atm-ink)] mb-6">Последние операции</h2>
+      <div className="flex flex-col gap-3 flex-1">
         {ops.map((op, i) => (
           <div
             key={i}
-            className="flex items-center gap-4 p-4 bg-white border border-[var(--atm-border)] rounded-xl animate-slide-up"
+            className="flex items-center gap-5 p-5 bg-white border border-[var(--atm-border)] rounded-2xl animate-slide-up"
             style={{ animationDelay: `${i * 0.07}s` }}
           >
-            <div className="w-10 h-10 rounded-xl bg-[var(--atm-keypad)] flex items-center justify-center flex-shrink-0">
-              <Icon name={op.icon} size={18} className="text-[var(--atm-ink)]" />
+            <div className="w-12 h-12 rounded-2xl bg-[var(--atm-keypad)] flex items-center justify-center flex-shrink-0">
+              <Icon name={op.icon} size={20} className="text-[var(--atm-ink)]" />
             </div>
             <div className="flex-1">
               <p className="text-sm font-semibold text-[var(--atm-ink)]">{op.label}</p>
-              <p className="text-[11px] text-[var(--atm-ink-faint)] font-mono-atm mt-0.5">{op.date}</p>
+              <p className="font-mono-atm text-xs text-[var(--atm-ink-faint)] mt-0.5">{op.date}</p>
             </div>
-            <p className={`font-mono-atm text-sm font-semibold ${op.color}`}>{op.amount} ₽</p>
+            <p className={`font-mono-atm text-base font-semibold ${op.color}`}>{op.amount} ₽</p>
           </div>
         ))}
       </div>
@@ -580,62 +659,67 @@ function HistoryScreen({ onBack }: { onBack: () => void }) {
   );
 }
 
-function TransferScreen({ onBack, onNext }: { onBack: () => void; onNext: (num: string) => void }) {
+function TransferRight({ onBack, onNext }: { onBack: () => void; onNext: (p: string) => void }) {
   const [phone, setPhone] = useState("");
   const keys = ["1","2","3","4","5","6","7","8","9","","0","⌫"];
-
   function handleKey(k: string) {
     if (k === "⌫") setPhone((p) => p.slice(0, -1));
     else if (phone.length < 10) setPhone((p) => p + k);
   }
-
   const formatted = phone.length > 0
-    ? `+7 (${phone.slice(0, 3)}) ${phone.slice(3, 6)}-${phone.slice(6, 8)}-${phone.slice(8, 10)}`
+    ? `+7 (${phone.slice(0,3)}) ${phone.slice(3,6)}-${phone.slice(6,8)}-${phone.slice(8,10)}`
     : "";
 
   return (
-    <div className="flex flex-col h-full min-h-[600px] p-8 animate-fade-in">
-      <button
-        onClick={onBack}
-        className="self-start text-xs text-[var(--atm-ink-muted)] font-mono-atm mb-6 flex items-center gap-1 hover:text-[var(--atm-ink)] transition-colors"
-      >
-        <Icon name="ChevronLeft" size={14} /> Назад
-      </button>
-      <p className="text-xs font-mono-atm text-[var(--atm-ink-faint)] tracking-[0.2em] uppercase mb-2">Перевод</p>
-      <h2 className="text-2xl font-semibold text-[var(--atm-ink)] mb-6">Номер получателя</h2>
-      <div className="bg-[var(--atm-keypad)] rounded-xl px-5 py-4 mb-6">
-        <p className="text-[10px] font-mono-atm text-[var(--atm-ink-faint)] mb-1 tracking-widest uppercase">Телефон</p>
-        <p className="font-mono-atm text-xl font-semibold text-[var(--atm-ink)]">
-          {formatted || "+7 (___) ___-__-__"}
-        </p>
-      </div>
-      <div className="grid grid-cols-3 gap-3 mb-6 flex-1">
-        {keys.map((k, idx) => (
+    <div className="flex h-full p-12 gap-12 animate-fade-in">
+      <div className="flex flex-col flex-1 justify-between">
+        <div>
           <button
-            key={idx}
-            onClick={() => k !== "" && handleKey(k)}
-            disabled={k === ""}
-            className={`h-14 rounded-xl text-lg font-semibold transition-all active:scale-95 ${
-              k === ""
-                ? "invisible"
-                : "bg-white border border-[var(--atm-border)] text-[var(--atm-ink)] hover:border-[var(--atm-ink-muted)] font-mono-atm"
-            }`}
+            onClick={onBack}
+            className="flex items-center gap-2 text-[var(--atm-ink-muted)] text-sm font-mono-atm hover:text-[var(--atm-ink)] transition-colors mb-8"
           >
-            {k}
+            <Icon name="ChevronLeft" size={16} /> Назад
           </button>
-        ))}
+          <h2 className="text-3xl font-semibold text-[var(--atm-ink)] mb-8" style={{ letterSpacing: "-0.02em" }}>
+            Номер телефона<br />получателя
+          </h2>
+          <div className="bg-[var(--atm-keypad)] rounded-2xl px-7 py-6">
+            <p className="font-mono-atm text-[#a0a09a] text-xs tracking-widest uppercase mb-2">Телефон</p>
+            <p className="font-mono-atm text-3xl font-semibold text-[var(--atm-ink)]">
+              {formatted || "+7 (___) ___-__-__"}
+            </p>
+          </div>
+        </div>
+        <button
+          disabled={phone.length < 10}
+          onClick={() => onNext(phone)}
+          className="w-full bg-[var(--atm-ink)] text-white py-5 rounded-2xl text-base font-semibold hover:bg-[#2a2a2a] active:scale-[0.98] transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+        >
+          Продолжить
+        </button>
       </div>
-      <button
-        disabled={phone.length < 10}
-        onClick={() => onNext(phone)}
-        className="w-full bg-[var(--atm-ink)] text-white py-4 rounded-xl text-sm font-semibold hover:bg-[#2a2a2a] active:scale-[0.98] transition-all disabled:opacity-30 disabled:cursor-not-allowed"
-      >
-        Продолжить
-      </button>
+      <div className="flex items-center justify-center">
+        <div className="grid grid-cols-3 gap-3 w-64">
+          {keys.map((k, idx) => (
+            <button
+              key={idx}
+              onClick={() => k !== "" && handleKey(k)}
+              disabled={k === ""}
+              className={`h-16 rounded-2xl text-xl font-semibold transition-all active:scale-95 ${
+                k === "" ? "invisible"
+                : "bg-[var(--atm-keypad)] text-[var(--atm-ink)] hover:bg-[#e2e2de] font-mono-atm"
+              }`}
+            >
+              {k}
+            </button>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
 
+/* ── Root ── */
 export default function Index() {
   const [screen, setScreen] = useState<Screen>("welcome");
   const [opAmount, setOpAmount] = useState(0);
@@ -647,80 +731,53 @@ export default function Index() {
         if (screen === "topup-processing") setScreen("topup-success");
         if (screen === "withdraw-processing") setScreen("withdraw-success");
         if (screen === "transfer-processing") setScreen("transfer-success");
-      }, 2200);
+      }, 2400);
       return () => clearTimeout(t);
     }
   }, [screen]);
 
-  function renderScreen() {
+  const leftPanel = screen === "welcome" ? <LeftBrand /> : <LeftCard screen={screen} />;
+
+  function renderRight() {
     switch (screen) {
       case "welcome":
-        return <WelcomeScreen onNext={() => setScreen("insert-card")} />;
+        return <WelcomeRight onNext={() => setScreen("insert-card")} />;
       case "insert-card":
-        return <InsertCardScreen onNext={() => setScreen("pin")} />;
+        return <InsertCardRight onNext={() => setScreen("pin")} />;
       case "pin":
-        return <PinScreen onBack={() => setScreen("insert-card")} onNext={() => setScreen("menu")} />;
+        return <PinRight onBack={() => setScreen("insert-card")} onNext={() => setScreen("menu")} />;
       case "menu":
-        return <MenuScreen onBack={() => setScreen("welcome")} onAction={(s) => setScreen(s)} />;
+        return <MenuRight onBack={() => setScreen("welcome")} onAction={(s) => setScreen(s)} />;
       case "topup-method":
-        return <TopupMethodScreen onBack={() => setScreen("menu")} onSelect={() => setScreen("topup-amount")} />;
+        return <TopupMethodRight onBack={() => setScreen("menu")} onSelect={() => setScreen("topup-amount")} />;
       case "topup-amount":
-        return (
-          <AmountScreen
-            title="Сумма пополнения"
-            subtitle="Пополнение счёта"
-            confirmLabel="Пополнить"
-            onBack={() => setScreen("topup-method")}
-            onConfirm={(a) => { setOpAmount(a); setScreen("topup-processing"); }}
-          />
-        );
+        return <AmountRight title="Сумма пополнения" confirmLabel="Пополнить счёт" onBack={() => setScreen("topup-method")} onConfirm={(a) => { setOpAmount(a); setScreen("topup-processing"); }} />;
       case "topup-processing":
-        return <ProcessingScreen label="Зачисляем средства..." />;
+        return <ProcessingRight label="Зачисляем средства..." />;
       case "topup-success":
-        return <SuccessScreen amount={opAmount} label="Счёт пополнен" onDone={() => setScreen("menu")} />;
+        return <SuccessRight amount={opAmount} label="Счёт пополнен" onDone={() => setScreen("menu")} />;
       case "withdraw-amount":
-        return (
-          <AmountScreen
-            title="Сумма снятия"
-            subtitle="Снятие наличных"
-            confirmLabel="Снять"
-            onBack={() => setScreen("menu")}
-            onConfirm={(a) => { setOpAmount(a); setScreen("withdraw-processing"); }}
-          />
-        );
+        return <AmountRight title="Сумма снятия" confirmLabel="Снять наличные" onBack={() => setScreen("menu")} onConfirm={(a) => { setOpAmount(a); setScreen("withdraw-processing"); }} />;
       case "withdraw-processing":
-        return <ProcessingScreen label="Выдаём наличные..." />;
+        return <ProcessingRight label="Выдаём наличные..." />;
       case "withdraw-success":
-        return <SuccessScreen amount={opAmount} label="Наличные выданы" onDone={() => setScreen("menu")} />;
+        return <SuccessRight amount={opAmount} label="Наличные выданы" onDone={() => setScreen("menu")} />;
       case "transfer":
-        return (
-          <TransferScreen
-            onBack={() => setScreen("menu")}
-            onNext={(p) => { setTransferPhone(p); setScreen("transfer-amount"); }}
-          />
-        );
+        return <TransferRight onBack={() => setScreen("menu")} onNext={(p) => { setTransferPhone(p); setScreen("transfer-amount"); }} />;
       case "transfer-amount":
-        return (
-          <AmountScreen
-            title="Сумма перевода"
-            subtitle={`Перевод на +7${transferPhone}`}
-            confirmLabel="Перевести"
-            onBack={() => setScreen("transfer")}
-            onConfirm={(a) => { setOpAmount(a); setScreen("transfer-processing"); }}
-          />
-        );
+        return <AmountRight title="Сумма перевода" confirmLabel="Перевести" onBack={() => setScreen("transfer")} onConfirm={(a) => { setOpAmount(a); setScreen("transfer-processing"); }} />;
       case "transfer-processing":
-        return <ProcessingScreen label="Выполняем перевод..." />;
+        return <ProcessingRight label="Выполняем перевод..." />;
       case "transfer-success":
-        return <SuccessScreen amount={opAmount} label="Перевод выполнен" onDone={() => setScreen("menu")} />;
+        return <SuccessRight amount={opAmount} label="Перевод выполнен" onDone={() => setScreen("menu")} />;
       case "balance":
-        return <BalanceScreen onBack={() => setScreen("menu")} />;
+        return <BalanceRight onBack={() => setScreen("menu")} />;
       case "history":
-        return <HistoryScreen onBack={() => setScreen("menu")} />;
+        return <HistoryRight onBack={() => setScreen("menu")} />;
       default:
         return null;
     }
   }
 
-  return <ATMShell>{renderScreen()}</ATMShell>;
+  return <ATMShell left={leftPanel} right={renderRight()} />;
 }
